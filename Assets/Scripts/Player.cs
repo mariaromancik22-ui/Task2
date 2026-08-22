@@ -43,11 +43,12 @@ public class Player : MonoBehaviour
         character.Move(direction * Time.deltaTime);
     }
     //столкновение
+    //вместо остановки времени - сделали gameover и рестарт в менеджере
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Obstacle"))
         {
-            Time.timeScale = 0f;
+            GameManager.Instance.GameOver();
         }
     }
 }
