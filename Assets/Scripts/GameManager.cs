@@ -41,6 +41,7 @@ public class GameManager : MonoBehaviour
     }
     public void NewGame()
     {
+        player.dead = false;
         Obstacle[] obstacles = FindObjectsOfType<Obstacle>();
         foreach (var obstacle in obstacles)
         {
@@ -56,9 +57,16 @@ public class GameManager : MonoBehaviour
     }
     public void GameOver()
     {
-        game_speed = 0f;
+        //Time.timeScale = 0f;
+        game_speed = 0;
         enabled = false;
+        
         spawner.gameObject.SetActive(false);
+        Obstacle[] obstacles = FindObjectsOfType<Obstacle>();
+        foreach (Obstacle obstacle in obstacles)
+        {
+            obstacle.GetComponent<Collider>().enabled = false;
+        }
         game_over_text.gameObject.SetActive(true);
         retry_button.gameObject.SetActive(true);
         update_high_score();
