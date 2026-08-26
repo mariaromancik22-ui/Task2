@@ -22,6 +22,8 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI high_score_text;
     private float score;
 
+    public Toggle colorToggle;
+
     public AudioSource source;
     public float pitch_controller = 0.8f;
     private void Awake()
@@ -90,6 +92,7 @@ public class GameManager : MonoBehaviour
         score_text.text = Mathf.FloorToInt(score).ToString("D5");
         source.pitch = pitch_controller;
         pitch_controller += game_speed * Time.deltaTime * 0.0001f; //можно и по другому
+        colorToggle.gameObject.SetActive(true); //теперь можно менять тему во время смерти
     }
 
     private void update_high_score()

@@ -4,8 +4,8 @@ public class ChangeTheme : MonoBehaviour
 {
     public Toggle colorToggle;
 
-    public Color normalColor = new Color(0.839f, 0.839f, 0.839f);
-    public Color pinkColor = new Color(1f, 0.75f, 0.8f);        
+    private Color normalColor = new Color(0.839f, 0.839f, 0.839f);
+    private Color pinkColor = new Color(1f, 0.75f, 0.8f);        
 
     private Camera mainCamera;
 
@@ -13,18 +13,19 @@ public class ChangeTheme : MonoBehaviour
     {
         mainCamera = GetComponent<Camera>();
         colorToggle.onValueChanged.AddListener(OnToggleChanged);
-        mainCamera.backgroundColor = normalColor;
+        mainCamera.backgroundColor = colorToggle.isOn ? normalColor : pinkColor;
     }
 
     void OnToggleChanged(bool isOn)
     {
         if (isOn)
         {
-            mainCamera.backgroundColor = pinkColor;
+            mainCamera.backgroundColor = normalColor;
+           
         }
         else
         {
-            mainCamera.backgroundColor = normalColor;
+            mainCamera.backgroundColor = pinkColor;
         }
     }
 }
