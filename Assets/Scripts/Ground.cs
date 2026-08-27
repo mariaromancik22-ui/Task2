@@ -2,7 +2,6 @@ using UnityEngine;
 [RequireComponent(typeof(MeshRenderer))]
 public class Ground : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     private MeshRenderer mesh_renderer;
     private void Awake()
     {

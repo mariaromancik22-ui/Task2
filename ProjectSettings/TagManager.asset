@@ -43,6 +43,18 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Backfround
+    uniqueID: 325266875
+    locked: 0
+  - name: Obstacles
+    uniqueID: 3680935071
+    locked: 0
+  - name: Character
+    uniqueID: 3300903301
+    locked: 0
+  - name: UI
+    uniqueID: 2436683557
+    locked: 0
   m_RenderingLayers:
   - Default
   m_MigratedRenderPipelines: []

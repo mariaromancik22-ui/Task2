@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    private CharacterController character;
+    public CharacterController character;
     public Vector3 direction;
 
     public float gravity = 9.81f * 2;
@@ -14,8 +14,10 @@ public class Player : MonoBehaviour
 
     public bool dead = false; //используется в менеджере для перезапуска игры
 
-    public GameObject dust_prefab; // ← Перетащи сюда префаб Dust
-    private bool landed = false; // ← Чтобы не спамило
+    public GameObject dust_prefab; //не использовалось изза бага
+    private bool landed = false; 
+
+    private Coroutine roarCoroutine;
 
     [System.Serializable]
     public class Sounds
@@ -39,85 +41,98 @@ public class Player : MonoBehaviour
         direction = Vector3.zero;
         dead = false;
     }
+    public void Jump()
+    {
+        if (dead) return;
+
+        //прыжок с земли
+        if (character.isGrounded)
+        {
+            Play_sound(0, 0);
+            Debug.Log("ПРЫЖОК");
+            direction = Vector3.up * jumpforce;
+            animator.SetBool("Jump", true);
+            animator.SetBool("Run", false);
+            jump_count = 1;
+        }
+    }
+
+    public void DoubleJump()
+    {
+        if (dead) return;
+        //двойной прыжок в воздухе
+        if (!character.isGrounded && jump_count < 2)
+        {
+            Play_sound(0, 0);
+            Debug.Log("ДВОЙНОЙ ПРЫЖОК");
+            direction = Vector3.up * jumpforce;
+            animator.SetBool("Jump", true);
+            animator.SetBool("Run", false);
+            jump_count++;
+            if (jump_count == 2)
+            {
+                animator.SetBool("Flip", true);
+                sounds[0].source.Stop();
+                Play_sound(1, 0);
+            }
+        }
+    }
     void Update()
     {
-        if (dead)
-        {
-            return;
-        }
-       
-        direction +=  gravity * Time.deltaTime * Vector3.down;
-        animator.SetBool("Dead", false);
+        if (dead) return;
 
+        direction += gravity * Time.deltaTime * Vector3.down;
+        animator.SetBool("Dead", false);
 
         if (character.isGrounded)
         {
-            Debug.Log("На земле");
-            if (landed)
-            {
-                SpawnDust();
-            }
-
+            //Debug.Log("На земле");
             direction = Vector3.down;
             animator.SetBool("Run", true);
-            animator.SetBool("Jump", false);//на земле не прыгаем
-            animator.SetBool("Flip", false); //не делает сальто
-
-            // Сброс счетчика ТОЛЬКО если не прыгаем
+            animator.SetBool("Jump", false);
+            animator.SetBool("Flip", false);
             if (!Input.GetButtonDown("Jump"))
             {
                 jump_count = 0;
             }
-
+            
             if (Input.GetButtonDown("Jump") && jump_count == 0)
             {
-                Play_sound(0, 0);
-                Debug.LogWarning("ПРЫЖОК");
-                animator.SetBool("Jump", true);
-                animator.SetBool("Run", false);  //нажали пробел - прыгаем
-                direction = Vector3.up * jumpforce;
-                jump_count = 1;
-               
-
+                Jump(); 
             }
         }
         else
         {
-            Debug.Log("В воздухе!");
-            animator.SetBool("Run", false);//НЕ УДАЛЯТЬ ИНАЧЕ АНИМАЦИЯ СМЕРТИ ОСТАНЕТСЯ ПОСЛЕ РЕСТАРТА
+            //Debug.Log("В воздухе!");
+            animator.SetBool("Run", false);
             if (Input.GetButtonDown("Jump") && jump_count < 2)
             {
-                Play_sound(0, 0);
-                Debug.LogWarning("ПРЫЖОК");
-                animator.SetBool("Jump", true); //починен пропуск анимации прыжка!
-                animator.SetBool("Run", false); 
-                direction = Vector3.up * jumpforce;
-                jump_count++;
-
-                // ТОЛЬКО для второго прыжка (двойного)
-                if (jump_count == 2)
-                {
-                 
-                    animator.SetBool("Flip", true); //сальто
-                    sounds[0].source.Stop();
-                    Play_sound(1, 0);
-                }
-               
+                DoubleJump();
             }
         }
 
         character.Move(direction * Time.deltaTime);
 
-        //рычыние на ЛКМ // изменено рычание на R
+        //рычыние на ЛКМ --> изменено рычание на R изза бага (работало через раз)
         if (Input.GetKeyDown(KeyCode.R))
         {
-            animator.SetBool("Roar", true);
-            Play_sound(2, 0);
+            if (roarCoroutine != null)
+            {
+                StopCoroutine(roarCoroutine);
+                animator.SetBool("Roar", false);
+                sounds[2].source.Stop(); 
+            }
+            roarCoroutine = StartCoroutine(PlayRoar());
         }
-        if (Input.GetKeyUp(KeyCode.R))
-        {
-            animator.SetBool("Roar", false);
-        }
+    }
+    private System.Collections.IEnumerator PlayRoar()
+    {
+        animator.SetBool("Roar", true);
+        Play_sound(2, 0);
+        yield return new WaitForSeconds(sounds[2].clip[0].length);
+        //анимация рыка = продолжительность звука рыка
+        animator.SetBool("Roar", false);
+        roarCoroutine = null;
     }
     private void SpawnDust()
     {
@@ -128,7 +143,7 @@ public class Player : MonoBehaviour
         }
     }
     //столкновение
-    //вместо остановки времени - сделали gameover и рестарт в менеджере
+    // остановки времени --> gameover и рестарт в менеджере
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Obstacle"))
@@ -144,6 +159,5 @@ public class Player : MonoBehaviour
             dead = true;
             GameManager.Instance.GameOver();
         }
-
     }
 }

@@ -67,7 +67,7 @@ public class GameManager : MonoBehaviour
     }
     public void GameOver()
     {
-        //Time.timeScale = 0f;
+        //Time.timeScale = 0f; как раньше обрабатывался проигрыш
         game_speed = 0;
         game_speed_increase = 0;
         //enabled = false; //не будет работать питч контроллер
@@ -91,7 +91,7 @@ public class GameManager : MonoBehaviour
         score += game_speed * Time.deltaTime;
         score_text.text = Mathf.FloorToInt(score).ToString("D5");
         source.pitch = pitch_controller;
-        pitch_controller += game_speed * Time.deltaTime * 0.0001f; //можно и по другому
+        pitch_controller += game_speed * Time.deltaTime * 0.0001f; //можно и по другому определить переменную через спец функцию но и так поёдйт.
         colorToggle.gameObject.SetActive(true); //теперь можно менять тему во время смерти
     }
 
